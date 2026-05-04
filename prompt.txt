@@ -1,0 +1,84 @@
+Eres un desarrollador frontend senior especializado en HTML/CSS/JS vanilla, Web Components nativos (Custom Elements + Shadow DOM) y diseño UI moderno con foco en rendimiento, accesibilidad y código mantenible.
+</rol>
+
+<contexto>
+Necesito una tienda en línea de productos tecnológicos en un **único archivo .html** (todo el HTML, CSS y JS embebido en el mismo archivo, sin dependencias externas, sin frameworks, sin CDNs salvo para íconos si es estrictamente necesario). La tienda debe permitir gestionar un catálogo, ver detalles de producto y manejar un carrito de compras del lado del cliente.
+
+El estilo debe ser **moderno, limpio, en dark mode**, con esquinas afiladas (estética "cubo" / cards rectas), sensación compacta y dos colores de acento: **indigo (#6366f1) y deeppink (#ff1493)**, usados con criterio (no en todo, sino para CTAs, badges, hovers y estados activos).
+</contexto>
+
+<tarea>
+Genera un único archivo index.html autocontenido que implemente:
+
+## 1. Layout general
+- **Header fijo arriba**: logo a la izquierda, barra de búsqueda al centro, ícono de carrito con contador de items a la derecha, y botón "Agregar producto".
+- **Sidebar izquierdo (~240px)** con filtros: categorías (Laptops, Smartphones, Periféricos, Componentes, Audio, Gaming) como lista de chips/botones tipo cubo apilados verticalmente, rango de precio con dos inputs (mín/máx), y filtro "Solo en stock".
+- **Área principal central**: grid responsive de tarjetas de producto (auto-fill, mínimo 240px de ancho por card).
+- **Panel del carrito tipo drawer** que se abre desde la derecha al hacer click en el ícono del carrito (overlay semitransparente detrás).
+- **Modal de detalle de producto** que se abre al hacer click en una card.
+- **Modal de "Agregar producto"** con formulario.
+
+## 2. Web Components (Custom Elements con Shadow DOM)
+Implementa **al menos** estos componentes reutilizables:
+- <product-card> — atributos: name, price, category, image, stock, id. Emite evento product-selected y add-to-cart.
+- <cart-item> — atributos: name, price, quantity, image, id. Emite eventos quantity-changed y item-removed.
+- <category-chip> — atributos: label, active, count. Emite category-toggled.
+- <quantity-input> — control con botones - y + y campo numérico. Emite quantity-changed.
+- <empty-state> — atributos: icon, title, message. Para carrito vacío y catálogo sin resultados.
+
+Cada componente debe encapsular su CSS dentro del Shadow DOM y exponer **CSS Custom Properties** (variables) para personalización desde fuera (al menos --accent, --bg, --border, --radius).
+
+## 3. Estado y persistencia
+- Estado central en un objeto JS plano ({ products: [], cart: [], filters: {} }).
+- Persistir products y cart en localStorage con claves namespaced (techstore.products, techstore.cart).
+- Al cargar la página, si no hay productos guardados, sembrar con **6-8 productos demo** (nombres, precios, categorías y URLs de imágenes placeholder realistas tipo https://picsum.photos/seed/...).
+- Usar pub/sub simple o CustomEvent en el document para comunicar cambios entre componentes y la app principal.
+
+## 4. Funcionalidad obligatoria
+- **Catálogo**: render desde estado, filtrado en vivo por categoría, rango de precio, búsqueda por nombre y stock.
+- **Detalle de producto**: modal con imagen grande, descripción, especificaciones técnicas (lista clave/valor), precio, stock disponible y botón "Agregar al carrito".
+- **Carrito**: lista de items con <cart-item>, control de cantidad (sin pasar el stock), botón eliminar, subtotal por item, total general, botón "Vaciar carrito" y botón "Finalizar compra" (que solo muestra un toast de confirmación y limpia el carrito).
+- **Agregar producto**: formulario con campos nombre, categoría (select), precio, stock, descripción, URL de imagen y especificaciones (pares clave/valor dinámicos con botón "agregar fila"). Validación nativa + validación JS (precio > 0, stock ≥ 0, nombre no vacío). Al guardar, agrega al estado y persiste.
+- **Toasts** breves para feedback (producto agregado, carrito vaciado, etc.).
+
+## 5. Estilo visual
+- Dark mode: fondo base #0a0a0f, paneles #13131a, bordes #22222e, texto principal #e5e5ed, texto secundario #9090a0.
+- Acentos: --accent-indigo: #6366f1, --accent-pink: #ff1493. Usa indigo para CTAs primarios y links activos; deeppink para badges de descuento, contador del carrito y hover de elementos destacados.
+- Tipografía: stack del sistema (-apple-system, "Segoe UI", Roboto, sans-serif).
+- Esquinas afiladas: border-radius: 2px máximo en cards y botones; nada redondeado.
+- Transiciones sutiles (150-200ms) en hovers y aperturas de modal.
+- Foco visible en todos los elementos interactivos (:focus-visible con outline indigo).
+
+## 6. Accesibilidad y UX
+- Roles ARIA en modales (role="dialog", aria-modal="true"), trap de foco básico.
+- Cerrar modales con tecla Escape.
+- Atributos alt en todas las imágenes.
+- Contraste mínimo AA en texto.
+- Estado vacío explícito cuando no hay productos filtrados ni items en el carrito.
+</tarea>
+
+<restricciones>
+- **NO uses frameworks** (nada de React, Vue, Alpine, Svelte, jQuery, Tailwind, Bootstrap).
+- **NO uses dependencias externas** salvo, opcionalmente, una fuente de íconos SVG inline o un único set de íconos en una <symbol> reutilizable dentro del propio archivo.
+- **NO uses build steps** (nada de TypeScript, JSX, SCSS, módulos ES con import remoto). JS plano con class para Web Components.
+- **NO inventes APIs del navegador** ni propiedades CSS que no existan.
+- **TODO en un único archivo .html**: HTML, CSS y JS embebido. Si necesitas separar lógica, usa funciones bien nombradas dentro del mismo <script>.
+- Código limpio: nombres descriptivos, funciones cortas, sin variables globales contaminando window (usa un IIFE o un objeto namespace App).
+- Comentarios sobrios solo donde aporten (separadores de sección y lógica no obvia).
+</restricciones>
+
+<formato_salida>
+1. Una breve nota inicial (3-5 líneas máx) describiendo decisiones de arquitectura tomadas (estructura de estado, eventos entre componentes, organización del CSS).
+2. El archivo completo index.html en un único bloque de código, listo para copiar, pegar y abrir directamente en el navegador sin pasos previos.
+3. Al final, una sección "**Cómo extender**" de 4-6 bullets explicando dónde editar para: agregar una nueva categoría, agregar un nuevo Web Component, cambiar la paleta de acentos, y conectar a un backend real reemplazando localStorage.
+</formato_salida>
+
+<criterios_de_éxito>
+- Abrir el archivo en un navegador moderno funciona sin errores en consola.
+- Se puede agregar un producto, verlo aparecer en el catálogo, abrir su detalle, agregarlo al carrito, modificar cantidad y vaciar el carrito.
+- Al recargar la página, los productos agregados y el carrito persisten.
+- Los Web Components funcionan de forma aislada (su CSS no se filtra al resto del documento ni viceversa).
+- La paleta indigo + deeppink se ve presente pero no saturada.
+</criterios_de_éxito>
+
+Crealo en este archivo index.html
