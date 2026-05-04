@@ -253,6 +253,23 @@ function closeAddModal() {
   $('add-modal-overlay').setAttribute('aria-hidden', 'true');
 }
 
+// ===== SIDEBAR DRAWER (mobile) =====
+function openSidebar() {
+  $('sidebar').classList.add('sidebar-open');
+  $('sidebar-overlay').classList.add('visible');
+  $('filter-toggle-btn').setAttribute('aria-expanded', 'true');
+}
+
+function closeSidebar() {
+  $('sidebar').classList.remove('sidebar-open');
+  $('sidebar-overlay').classList.remove('visible');
+  $('filter-toggle-btn').setAttribute('aria-expanded', 'false');
+}
+
+function toggleSidebar() {
+  $('sidebar').classList.contains('sidebar-open') ? closeSidebar() : openSidebar();
+}
+
 // ===== FOCUS TRAP =====
 function trapFocus(el) {
   const focusable = [...el.querySelectorAll(
@@ -383,6 +400,10 @@ function initEvents() {
   $('price-max').addEventListener('input', e => { state.filters.priceMax = e.target.value; renderCatalog(); });
   $('stock-filter').addEventListener('change', e => { state.filters.inStock = e.target.checked; renderCatalog(); });
 
+  // Sidebar drawer (mobile)
+  $('filter-toggle-btn').addEventListener('click', toggleSidebar);
+  $('sidebar-overlay').addEventListener('click', closeSidebar);
+
   $('cart-toggle-btn').addEventListener('click', openCart);
   $('cart-close-btn').addEventListener('click', closeCart);
   $('cart-overlay').addEventListener('click', closeCart);
@@ -409,12 +430,13 @@ function initEvents() {
     if (e.target === $('product-modal-overlay')) { closeProductModal(); }
   });
 
-  // Delegated: category chips
+  // Delegated: category chips — close sidebar on mobile after selecting
   $('category-list').addEventListener('category-toggled', e => {
     const { label } = e.detail;
     state.filters.category = state.filters.category === label ? null : label;
     renderCategories();
     renderCatalog();
+    if (window.innerWidth <= 768) { closeSidebar(); }
   });
 
   // Delegated: product grid
@@ -471,7 +493,13 @@ function initEvents() {
     if (e.key !== 'Escape') { return; }
     if ($('product-modal-overlay').classList.contains('visible')) { closeProductModal(); return; }
     if ($('add-modal-overlay').classList.contains('visible'))     { closeAddModal();     return; }
-    if ($('cart-drawer').classList.contains('open'))              { closeCart(); }
+    if ($('cart-drawer').classList.contains('open'))              { closeCart();         return; }
+    if ($('sidebar').classList.contains('sidebar-open'))          { closeSidebar(); }
+  });
+
+  // Reset sidebar state when viewport goes back to desktop
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) { closeSidebar(); }
   });
 }
 

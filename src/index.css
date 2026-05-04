@@ -131,6 +131,39 @@ body {
   line-height: 1.4;
 }
 
+/* ===== ICON BUTTON (filter toggle, mobile) ===== */
+.icon-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  font-family: inherit;
+  flex-shrink: 0;
+}
+.icon-btn:hover { border-color: var(--accent-indigo); color: var(--accent-indigo); }
+.icon-btn:focus-visible { outline: 2px solid var(--accent-indigo); outline-offset: 2px; }
+
+/* Hidden on desktop, shown via media query */
+.filter-toggle-btn { display: none; }
+
+/* ===== SIDEBAR OVERLAY (mobile only) ===== */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 149;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.sidebar-overlay.visible { opacity: 1; pointer-events: all; }
+
 /* ===== LAYOUT ===== */
 .layout { display: flex; margin-top: var(--header-h); min-height: calc(100vh - var(--header-h)); }
 
@@ -465,3 +498,126 @@ body {
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* --- Tablet: ≤ 1024px --- */
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 200px; }
+
+  .product-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+
+  .search-bar { max-width: 340px; }
+}
+
+/* --- Mobile: ≤ 768px --- */
+@media (max-width: 768px) {
+  /* Header height grows to fit 2 rows */
+  :root { --header-h: 104px; }
+
+  .header {
+    flex-wrap: wrap;
+    height: var(--header-h);
+    padding: 0 14px;
+    align-content: flex-start;
+    gap: 0;
+    column-gap: 10px;
+  }
+
+  /* Row 1: logo */
+  .logo { height: 56px; display: flex; align-items: center; }
+
+  /* Row 1: actions (pushed right via margin-left:auto already set) */
+  .header-actions { height: 56px; gap: 8px; }
+
+  /* Row 2: search bar wraps below */
+  .search-bar {
+    order: 3;
+    flex: 1 1 100%;
+    max-width: 100%;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding-bottom: 10px;
+  }
+
+  /* Show filter button, hide button labels */
+  .filter-toggle-btn { display: flex; }
+  .btn-text  { display: none; }
+  .cart-text { display: none; }
+
+  /* Compact button padding (icon-only) */
+  .btn-primary { padding: 8px 10px; }
+  .cart-btn    { padding: 8px 10px; }
+
+  /* Sidebar becomes a fixed left drawer */
+  .sidebar {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    height: calc(100vh - var(--header-h));
+    z-index: 150;
+    transform: translateX(-100%);
+    transition: transform 200ms ease;
+    border-right: 1px solid var(--border);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+    /* Override sticky positioning */
+    width: var(--sidebar-w);
+  }
+  .sidebar.sidebar-open { transform: translateX(0); }
+
+  /* Show sidebar overlay */
+  .sidebar-overlay { display: block; }
+
+  /* Main content uses full width */
+  .main { padding: 14px; }
+
+  .product-grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; }
+
+  /* Cart drawer slightly narrower */
+  .cart-drawer { width: 340px; }
+
+  /* Modal fits better on tablet */
+  .modal-overlay { padding: 12px; }
+}
+
+/* --- Small phone: ≤ 480px --- */
+@media (max-width: 480px) {
+  .logo { font-size: 1.05rem; }
+
+  /* 2-column fixed grid */
+  .product-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+  .main { padding: 10px; }
+
+  /* Cart drawer covers full width */
+  .cart-drawer { width: 100%; max-width: 100%; border-left: none; border-top: 1px solid var(--border); }
+
+  /* Modal becomes a bottom sheet */
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .modal {
+    max-height: 92vh;
+    border-radius: 0;
+    transform: translateY(40px);
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+  .modal-overlay.visible .modal { transform: translateY(0); }
+
+  /* Form collapses to 1 column */
+  .form-grid { grid-template-columns: 1fr; }
+  .form-group.full { grid-column: 1; }
+
+  /* Toasts: full width at bottom */
+  .toast-container { bottom: 12px; right: 12px; left: 12px; }
+  .toast { max-width: 100%; }
+
+  /* Product detail stacks vertically (already covered by 560px query, keep consistent) */
+  .product-detail-grid { grid-template-columns: 1fr; }
+}
